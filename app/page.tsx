@@ -1,65 +1,138 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useRef, useState } from "react";
+import { COLORS } from "@/lib/constants";
+import { TEMPLATES } from "@/lib/templates";
+import type { TabId, TemplateKey } from "@/lib/constants";
+import { computeAts } from "@/lib/ats";
+import { ResumeContext } from "@/context/ResumeContext";
+import { useResumeData } from "@/hooks/useResumeData";
+import { useResumeProcessor } from "@/hooks/useResumeProcessor";
+import { useFileReader } from "@/hooks/useFileReader";
+import { useJobFinder } from "@/hooks/useJobFinder";
+import { Topbar } from "@/components/layout/Topbar";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { UploadScreen } from "@/components/panels/UploadScreen";
+import { ProcessingScreen } from "@/components/panels/ProcessingScreen";
+import { ResumeTab } from "@/components/panels/ResumeTab";
+import { CoverTab } from "@/components/panels/CoverTab";
+import { SuggestionsTab } from "@/components/panels/SuggestionsTab";
+import { JobsTab } from "@/components/panels/JobsTab";
+import { SettingsTab } from "@/components/panels/SettingsTab";
+
+const GLOBAL_STYLES = `
+  @keyframes fadeIn   { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes spin     { to{transform:rotate(360deg)} }
+  @keyframes pulse    { 0%,100%{opacity:0.35} 50%{opacity:0.9} }
+  @keyframes pulseDot { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+  textarea:focus, input:focus { border-color: #3b82f6 !important; outline: none; }
+  textarea, input { transition: border-color 0.15s; }
+  * { box-sizing: border-box; }
+`;
+
+export default function App() {
+  const [jobDesc, setJobDesc]               = useState("");
+  const [activeTab, setActiveTab]           = useState<TabId>("resume");
+  const [activeTemplate, setActiveTemplate] = useState<TemplateKey>("classic");
+
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const resume    = useResumeData();
+  const processor = useResumeProcessor({ jobDesc, initData: resume.initData });
+  const file      = useFileReader();
+  const jobFinder = useJobFinder({ editData: resume.editData, activeSkills: resume.activeSkills, jobDesc });
+
+  // Derived ATS
+  const atsResult = computeAts({ resumeData: resume.resumeData, editData: resume.editData, activeSkills: resume.activeSkills });
+  const atsScore  = atsResult.score;
+  const atsColor  = atsScore >= 80 ? "#22c55e" : atsScore >= 60 ? "#fbbf24" : "#ef4444";
+  const liveMatched = atsResult.matched.length ? atsResult.matched : (resume.resumeData?.keywordsMatched || []);
+  const liveMissing = atsResult.missing.length ? atsResult.missing : (resume.resumeData?.keywordsMissing || []);
+
+  const ats = { score: atsScore, color: atsColor, matched: liveMatched, missing: liveMissing };
+
+  const handleReset = () => {
+    processor.setStep("upload");
+    resume.resetData();
+    file.reset();
+    jobFinder.reset();
+    setActiveTab("resume");
+  };
+
+  const handleDownload = () => {
+    if (!resume.editData) return;
+    const html = TEMPLATES[activeTemplate].render(resume.editData, resume.activeSkills);
+    const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${resume.editData.name || "Resume"}</title>
+  <style>@media print{@page{margin:0.5in;size:letter}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
+</head>
+<body>${html}
+<script>window.onload=function(){setTimeout(function(){window.print();},300)}<\/script>
+</body>
+</html>`;
+    const blob = new Blob([fullHtml], { type: "text/html" });
+    const url  = URL.createObjectURL(blob);
+    const win  = window.open(url, "_blank");
+    if (!win) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(resume.editData.name || "resume").replace(/\s+/g, "_")}.html`;
+      a.click();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  };
+
+  const ctx = {
+    resume: { ...resume },
+    processor,
+    file,
+    jobs: jobFinder,
+    ats,
+    jobDesc,
+    setJobDesc,
+    activeTemplate,
+    setActiveTemplate,
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <ResumeContext.Provider value={ctx}>
+      <style>{GLOBAL_STYLES}</style>
+
+      {processor.step === "upload" && <UploadScreen />}
+
+      {processor.step === "processing" && (
+        <ProcessingScreen msg={processor.processingMsg} hasJD={!!jobDesc.trim()} />
+      )}
+
+      {processor.step === "preview" && (
+        <div
+          style={{
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            background: COLORS.bg,
+            fontFamily: "'Inter',-apple-system,sans-serif",
+            color: COLORS.text,
+          }}
+        >
+          <Topbar onNew={handleReset} onDownload={handleDownload} />
+
+          <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+            <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+              {activeTab === "resume"      && <ResumeTab iframeRef={iframeRef} />}
+              {activeTab === "cover"       && <CoverTab />}
+              {activeTab === "suggestions" && <SuggestionsTab />}
+              {activeTab === "jobs"        && <JobsTab />}
+              {activeTab === "settings"    && <SettingsTab onPreview={() => setActiveTab("resume")} />}
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </ResumeContext.Provider>
   );
 }
