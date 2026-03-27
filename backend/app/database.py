@@ -17,21 +17,18 @@ async def get_db() -> AsyncSession:
         yield session
 
 
-async def create_tables() -> None:
-    async with engine.begin() as conn:
-        from app import models  # noqa: F401 — ensures models are registered
-        await conn.run_sync(Base.metadata.create_all)
-    await _seed_prompts()
+async def seed_prompts() -> None:
+    """Insert default prompts if they don't exist yet.
 
-
-async def _seed_prompts() -> None:
+    Safe to call on every startup — rows are only inserted when absent.
+    Schema must already exist (run `alembic upgrade head` first).
+    """
     from app.models import Prompt
     from app.prompt_seeds import DEFAULT_PROMPTS
 
     async with AsyncSessionLocal() as session:
         for seed in DEFAULT_PROMPTS:
             result = await session.execute(select(Prompt).where(Prompt.name == seed["name"]))
-            existing = result.scalar_one_or_none()
-            if existing is None:
+            if result.scalar_one_or_none() is None:
                 session.add(Prompt(**seed))
         await session.commit()

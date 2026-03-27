@@ -4,13 +4,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.database import create_tables
+from app.database import seed_prompts
 from app.routers import auth, claude, prompts, resumes
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await create_tables()
+    # Schema is managed by Alembic (`alembic upgrade head` runs before startup).
+    # Only seed reference data here.
+    await seed_prompts()
     yield
 
 

@@ -38,7 +38,7 @@ export function useResumeData() {
     setEditData((prev) => {
       if (!prev) return prev;
       const n = JSON.parse(JSON.stringify(prev)) as ResumeData;
-      (n.experience[eIdx] as Record<string, unknown>)[field] = val;
+      (n.experience[eIdx] as unknown as Record<string, unknown>)[field] = val;
       return n;
     }), []);
 
@@ -83,7 +83,7 @@ export function useResumeData() {
     setEditData((prev) => {
       if (!prev) return prev;
       const n = JSON.parse(JSON.stringify(prev)) as ResumeData;
-      (n.projects[pIdx] as Record<string, unknown>)[field] = val;
+      (n.projects[pIdx] as unknown as Record<string, unknown>)[field] = val;
       return n;
     }), []);
 
@@ -132,7 +132,7 @@ export function useResumeData() {
     setEditData((prev) => {
       if (!prev) return prev;
       const n = JSON.parse(JSON.stringify(prev)) as ResumeData;
-      (n.education[idx] as Record<string, unknown>)[field] = val;
+      (n.education[idx] as unknown as Record<string, unknown>)[field] = val;
       return n;
     }), []);
 

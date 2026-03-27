@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
 import { AtsBadge, Btn } from "@/components/ui";
@@ -53,6 +54,13 @@ export function Topbar({ onNew, onDownload }: Props) {
         </Btn>
         <Btn variant="primary" onClick={onDownload} style={{ padding: "4px 14px", fontSize: "11px" }}>
           ⬇ Save as PDF
+        </Btn>
+        <Btn
+          variant="ghost"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          style={{ padding: "4px 10px", fontSize: "11px", color: COLORS.textDim }}
+        >
+          Sign out
         </Btn>
       </div>
     </div>

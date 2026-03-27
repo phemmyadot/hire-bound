@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { signOut } from "next-auth/react";
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
 import { Btn } from "@/components/ui";
@@ -47,6 +48,19 @@ export function UploadScreen() {
         }}
       >
         <AppLogo />
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          style={{
+            marginLeft: "auto",
+            background: "transparent",
+            border: "none",
+            color: COLORS.textDim,
+            cursor: "pointer",
+            fontSize: "12px",
+          }}
+        >
+          Sign out
+        </button>
       </div>
 
       {/* Hero */}

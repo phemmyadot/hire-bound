@@ -14,6 +14,7 @@ import { useResumeHistory } from "@/hooks/useResumeHistory";
 import type { ResumeData } from "@/lib/types";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { ProfileScreen } from "@/components/panels/ProfileScreen";
 import { UploadScreen } from "@/components/panels/UploadScreen";
 import { ProcessingScreen } from "@/components/panels/ProcessingScreen";
 import { ResumeTab } from "@/components/panels/ResumeTab";
@@ -22,6 +23,8 @@ import { SuggestionsTab } from "@/components/panels/SuggestionsTab";
 import { JobsTab } from "@/components/panels/JobsTab";
 import { HistoryTab } from "@/components/panels/HistoryTab";
 import { SettingsTab } from "@/components/panels/SettingsTab";
+
+type View = "profile" | "upload";
 
 const GLOBAL_STYLES = `
   @keyframes fadeIn   { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
@@ -34,6 +37,7 @@ const GLOBAL_STYLES = `
 `;
 
 export default function App() {
+  const [view, setView]                     = useState<View>("profile");
   const [jobDesc, setJobDesc]               = useState("");
   const [activeTab, setActiveTab]           = useState<TabId>("resume");
   const [activeTemplate, setActiveTemplate] = useState<TemplateKey>("classic");
@@ -42,8 +46,8 @@ export default function App() {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const resume    = useResumeData();
-  const history   = useResumeHistory();
+  const resume  = useResumeData();
+  const history = useResumeHistory();
 
   // Auto-save after processing completes
   const initDataAndSave = useCallback(async (data: ResumeData) => {
@@ -58,8 +62,19 @@ export default function App() {
   const file      = useFileReader();
   const jobFinder = useJobFinder({ editData: resume.editData, activeSkills: resume.activeSkills, jobDesc });
 
-  // Load history list on mount
   useEffect(() => { history.load(); }, [history.load]);
+
+  // "New" from the preview toolbar → back to profile and reset state
+  const handleNew = useCallback(() => {
+    processor.setStep("upload");
+    resume.resetData();
+    file.reset();
+    jobFinder.reset();
+    setSavedId(null);
+    setJobDesc("");
+    setActiveTab("resume");
+    setView("profile");
+  }, [processor, resume, file, jobFinder]);
 
   // Manual save / update
   const onSave = useCallback(async () => {
@@ -75,21 +90,12 @@ export default function App() {
   }, [resume.editData, savedId, history.update, history.save]);
 
   // Derived ATS
-  const atsResult  = computeAts({ resumeData: resume.resumeData, editData: resume.editData, activeSkills: resume.activeSkills });
-  const atsScore   = atsResult.score;
-  const atsColor   = atsScore >= 80 ? "#22c55e" : atsScore >= 60 ? "#fbbf24" : "#ef4444";
+  const atsResult   = computeAts({ resumeData: resume.resumeData, editData: resume.editData, activeSkills: resume.activeSkills });
+  const atsScore    = atsResult.score;
+  const atsColor    = atsScore >= 80 ? "#22c55e" : atsScore >= 60 ? "#fbbf24" : "#ef4444";
   const liveMatched = atsResult.matched.length ? atsResult.matched : (resume.resumeData?.keywordsMatched || []);
   const liveMissing = atsResult.missing.length ? atsResult.missing : (resume.resumeData?.keywordsMissing || []);
   const ats = { score: atsScore, color: atsColor, matched: liveMatched, missing: liveMissing };
-
-  const handleReset = () => {
-    processor.setStep("upload");
-    resume.resetData();
-    file.reset();
-    jobFinder.reset();
-    setSavedId(null);
-    setActiveTab("resume");
-  };
 
   const handleDownload = () => {
     if (!resume.editData) return;
@@ -137,12 +143,20 @@ export default function App() {
     <ResumeContext.Provider value={ctx}>
       <style>{GLOBAL_STYLES}</style>
 
-      {processor.step === "upload" && <UploadScreen />}
+      {/* Profile — default landing page */}
+      {view === "profile" && processor.step !== "preview" && (
+        <ProfileScreen onNew={() => setView("upload")} />
+      )}
 
+      {/* Upload */}
+      {view === "upload" && processor.step === "upload" && <UploadScreen />}
+
+      {/* Processing */}
       {processor.step === "processing" && (
         <ProcessingScreen msg={processor.processingMsg} hasJD={!!jobDesc.trim()} />
       )}
 
+      {/* Preview */}
       {processor.step === "preview" && (
         <div
           style={{
@@ -154,7 +168,7 @@ export default function App() {
             color: COLORS.text,
           }}
         >
-          <Topbar onNew={handleReset} onDownload={handleDownload} />
+          <Topbar onNew={handleNew} onDownload={handleDownload} />
 
           <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
             <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
