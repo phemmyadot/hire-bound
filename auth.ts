@@ -33,15 +33,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      if (!isLoggedIn) return false; // redirects to /login
-      // Redirect already-logged-in users away from /login
-      if (nextUrl.pathname.startsWith("/login")) {
-        return Response.redirect(new URL("/", nextUrl));
-      }
-      return true;
-    },
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = (user as { accessToken: string }).accessToken;

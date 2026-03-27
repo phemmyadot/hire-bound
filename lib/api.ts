@@ -1,9 +1,9 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_BASE = "/api/backend";
 
 // ── authenticated fetch helper ───────────────────────────────────────────────
 
 export async function apiFetch(path: string, token: string, options: RequestInit = {}): Promise<Response> {
-  return fetch(`${API_URL}${path}`, {
+  return fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export async function callClaude<T = unknown>({
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}/claude`, {
+  const res = await fetch(`${API_BASE}/claude`, {
     method: "POST",
     headers,
     body: JSON.stringify({

@@ -28,8 +28,6 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false);
   const [mode, setMode]         = useState<"login" | "register">("login");
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -37,7 +35,7 @@ export default function LoginPage() {
 
     try {
       if (mode === "register") {
-        const res = await fetch(`${apiUrl}/auth/register`, {
+        const res = await fetch("/api/backend/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
