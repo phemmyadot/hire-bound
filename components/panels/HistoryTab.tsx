@@ -171,6 +171,20 @@ export function HistoryTab() {
                   {loadingId === r.id ? "Loading…" : "Load"}
                 </button>
                 <button
+                  onClick={() => startRename(r.id, r.name)}
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: 6,
+                    color: COLORS.textDim,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    padding: "5px 10px",
+                  }}
+                >
+                  Rename
+                </button>
+                <button
                   onClick={() => handleDelete(r.id)}
                   disabled={deletingId === r.id}
                   style={{
