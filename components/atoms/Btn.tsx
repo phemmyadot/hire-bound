@@ -7,7 +7,7 @@ type Variant = "default" | "primary" | "ghost" | "danger" | "dashed";
 
 const VARIANTS: Record<Variant, CSSProperties> = {
   default: { background: COLORS.borderMid,  border: `1px solid ${COLORS.borderMid}`, color: COLORS.textMuted },
-  primary: { background: "linear-gradient(135deg,#3b82f6,#8b5cf6)", border: "none", color: "#fff" },
+  primary: { background: COLORS.blue, border: "none", color: "#fff" },
   ghost:   { background: "transparent", border: `1px solid ${COLORS.border}`, color: COLORS.textDim },
   danger:  { background: "transparent", border: "none", color: COLORS.redDim },
   dashed:  { background: "transparent", border: `1px dashed #1e3a5f`, color: COLORS.blueLight },

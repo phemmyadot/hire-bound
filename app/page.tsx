@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { COLORS } from "@/lib/constants";
 import type { TabId, TemplateKey } from "@/lib/constants";
 import { computeAts } from "@/lib/ats";
@@ -13,7 +14,6 @@ import { useResumeHistory } from "@/hooks/useResumeHistory";
 import type { ResumeData } from "@/lib/types";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { ProfileScreen } from "@/components/panels/ProfileScreen";
 import { UploadScreen } from "@/components/panels/UploadScreen";
 import { ProcessingScreen } from "@/components/panels/ProcessingScreen";
 import { ResumeTab } from "@/components/panels/ResumeTab";
@@ -22,8 +22,6 @@ import { SuggestionsTab } from "@/components/panels/SuggestionsTab";
 import { JobsTab } from "@/components/panels/JobsTab";
 import { HistoryTab } from "@/components/panels/HistoryTab";
 import { SettingsTab } from "@/components/panels/SettingsTab";
-
-type View = "profile" | "upload";
 
 const GLOBAL_STYLES = `
   @keyframes fadeIn   { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
@@ -36,12 +34,14 @@ const GLOBAL_STYLES = `
 `;
 
 export default function App() {
-  const [view, setView]                     = useState<View>("profile");
   const [jobDesc, setJobDesc]               = useState("");
   const [activeTab, setActiveTab]           = useState<TabId>("resume");
   const [activeTemplate, setActiveTemplate] = useState<TemplateKey>("classic");
   const [savedId, setSavedId]               = useState<number | null>(null);
   const [saving, setSaving]                 = useState(false);
+  const [appReady, setAppReady]             = useState(false);
+  const [canGoBack, setCanGoBack]           = useState(false);
+  const { status } = useSession();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -61,10 +61,29 @@ export default function App() {
   const file      = useFileReader();
   const jobFinder = useJobFinder({ editData: resume.editData, activeSkills: resume.activeSkills, jobDesc });
 
-  useEffect(() => { history.load(); }, [history.load]);
+  // On mount: load history and auto-open the latest resume
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    history.load().then((list) => {
+      if (!list.length) {
+        setAppReady(true); // no resumes → show upload
+        return;
+      }
+      history.fetchOne(list[0].id).then((data) => {
+        if (data) {
+          resume.initData(data);
+          setSavedId(list[0].id);
+          processor.setStep("preview");
+        }
+        setAppReady(true);
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]); // only runs once session is authenticated
 
-  // "New" from the preview toolbar → back to profile and reset state
+  // "New" from preview toolbar → reset and go to upload
   const handleNew = useCallback(() => {
+    setCanGoBack(true);
     processor.setStep("upload");
     resume.resetData();
     file.reset();
@@ -72,8 +91,13 @@ export default function App() {
     setSavedId(null);
     setJobDesc("");
     setActiveTab("resume");
-    setView("profile");
   }, [processor, resume, file, jobFinder]);
+
+  // Back from upload → return to preview
+  const handleBackFromUpload = useCallback(() => {
+    setCanGoBack(false);
+    processor.setStep("preview");
+  }, [processor]);
 
   // Manual save / update
   const onSave = useCallback(async () => {
@@ -123,21 +147,18 @@ export default function App() {
     <ResumeContext.Provider value={ctx}>
       <style>{GLOBAL_STYLES}</style>
 
-      {/* Profile — default landing page */}
-      {view === "profile" && processor.step !== "preview" && (
-        <ProfileScreen onNew={() => setView("upload")} />
+      {/* Upload */}
+      {appReady && processor.step === "upload" && (
+        <UploadScreen onBack={canGoBack ? handleBackFromUpload : null} />
       )}
 
-      {/* Upload */}
-      {view === "upload" && processor.step === "upload" && <UploadScreen onBack={() => setView("profile")} />}
-
-      {/* Processing */}
+      {/* Processing — no appReady gate needed, only reachable after user submits */}
       {processor.step === "processing" && (
         <ProcessingScreen msg={processor.processingMsg} hasJD={!!jobDesc.trim()} />
       )}
 
-      {/* Preview */}
-      {processor.step === "preview" && (
+      {/* Preview / editor */}
+      {appReady && processor.step === "preview" && (
         <div
           style={{
             height: "100vh",

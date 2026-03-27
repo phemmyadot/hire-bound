@@ -20,16 +20,19 @@ export function useResumeHistory() {
 
   const token = (session as { accessToken?: string } | null)?.accessToken ?? "";
 
-  const load = useCallback(async () => {
-    if (!token) return;
+  const load = useCallback(async (): Promise<ResumeListItem[]> => {
+    if (!token) return [];
     setLoading(true);
     setError("");
     try {
       const res = await apiFetch("/resumes", token);
       if (!res.ok) throw new Error("Failed to load");
-      setResumes(await res.json());
+      const list: ResumeListItem[] = await res.json();
+      setResumes(list);
+      return list;
     } catch {
       setError("Could not load saved resumes.");
+      return [];
     } finally {
       setLoading(false);
     }

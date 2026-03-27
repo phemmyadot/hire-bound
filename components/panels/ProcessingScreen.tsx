@@ -1,6 +1,7 @@
 "use client";
 
 import { COLORS } from "@/lib/constants";
+import { AppLogo } from "@/components/layout/AppLogo";
 
 interface Props {
   msg: string;
@@ -17,41 +18,31 @@ export function ProcessingScreen({ msg, hasJD }: Props) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        gap: "20px",
+        gap: "24px",
         fontFamily: "'Inter',-apple-system,sans-serif",
         color: COLORS.text,
       }}
     >
-      <div style={{ position: "relative", width: "58px", height: "58px" }}>
+      <AppLogo />
+
+      {/* Spinner */}
+      <div style={{ position: "relative", width: "48px", height: "48px" }}>
         <div
           style={{
             position: "absolute",
             inset: 0,
             borderRadius: "50%",
-            border: "2px solid transparent",
+            border: `2px solid ${COLORS.border}`,
             borderTopColor: COLORS.blue,
-            borderRightColor: COLORS.purple,
-            animation: "spin 1s linear infinite",
+            animation: "spin 0.9s linear infinite",
           }}
         />
-        <div
-          style={{
-            position: "absolute",
-            inset: "10px",
-            borderRadius: "50%",
-            background: COLORS.surface,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "18px",
-          }}
-        >
-          ✨
-        </div>
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: "15px", fontWeight: "600", marginBottom: "5px" }}>{msg}</div>
+        <div style={{ fontSize: "14px", fontWeight: 600, color: COLORS.text, marginBottom: "4px" }}>
+          {msg}
+        </div>
         <div style={{ fontSize: "12px", color: COLORS.textDim }}>
           {hasJD ? "Tailoring to job description…" : "Optimizing for ATS…"}
         </div>
@@ -62,10 +53,11 @@ export function ProcessingScreen({ msg, hasJD }: Props) {
           <div
             key={i}
             style={{
-              width: "6px",
-              height: "6px",
+              width: "5px",
+              height: "5px",
               borderRadius: "50%",
               background: COLORS.blue,
+              opacity: 0.4,
               animation: `pulseDot 1.2s ease-in-out ${i * 0.2}s infinite`,
             }}
           />

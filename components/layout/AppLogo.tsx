@@ -2,34 +2,34 @@
 
 export function AppLogo() {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
       <div
         style={{
-          width: "22px",
-          height: "22px",
-          background: "linear-gradient(135deg,#3b82f6,#8b5cf6)",
-          borderRadius: "5px",
+          width: "26px",
+          height: "26px",
+          background: "#3b82f6",
+          borderRadius: "7px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontWeight: "800",
-          fontSize: "11px",
+          fontSize: "10px",
+          letterSpacing: "-0.5px",
           color: "#fff",
+          flexShrink: 0,
         }}
       >
-        R
+        HB
       </div>
-      <span style={{ fontSize: "13px", fontWeight: "600" }}>ResumeAI</span>
       <span
         style={{
-          fontSize: "10px",
-          background: "#1e3a5f",
-          color: "#60a5fa",
-          padding: "2px 8px",
-          borderRadius: "10px",
+          fontSize: "14px",
+          fontWeight: "600",
+          color: "#f4f4f5",
+          letterSpacing: "-0.3px",
         }}
       >
-        Claude-powered
+        HireBound
       </span>
     </div>
   );
