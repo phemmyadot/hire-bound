@@ -2,7 +2,8 @@
 
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
-import { SkillPill, ScoreBar, Tag, PriorityCard, Btn } from "@/components/ui";
+import { SkillPill, ScoreBar, Tag, Btn } from "@/components/atoms";
+import { PriorityCard } from "@/components/molecules";
 
 export function SuggestionsTab() {
   const { resume, ats } = useResume();

@@ -1,7 +1,7 @@
 "use client";
 
 import { COLORS } from "@/lib/constants";
-import { Skeleton } from "./Skeleton";
+import { Skeleton } from "@/components/atoms/Skeleton";
 
 interface Props {
   delay?: number;
@@ -18,9 +18,7 @@ export function JobSkeleton({ delay = 0 }: Props) {
         animation: `pulse 1.4s ease-in-out ${delay}s infinite`,
       }}
     >
-      <div
-        style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
         <Skeleton width="200px" height="14px" />
         <Skeleton width="60px" height="14px" />
       </div>

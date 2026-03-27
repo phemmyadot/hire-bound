@@ -1,8 +1,8 @@
 "use client";
 
 import { COLORS } from "@/lib/constants";
-import { TextInput } from "./TextInput";
-import { TextArea } from "./TextArea";
+import { TextInput } from "@/components/atoms/TextInput";
+import { TextArea } from "@/components/atoms/TextArea";
 import type { CSSProperties } from "react";
 
 interface Props {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
-import { Btn } from "@/components/ui";
+import { Btn } from "@/components/atoms";
 
 export function CoverTab() {
   const { resume, jobDesc } = useResume();

@@ -2,7 +2,8 @@
 
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
-import { Field, SectionHeader, EditCard, BulletRow, TwoCol, Btn } from "@/components/ui";
+import { Btn } from "@/components/atoms";
+import { Field, SectionHeader, EditCard, BulletRow, TwoCol } from "@/components/molecules";
 
 interface Props {
   onPreview: () => void;

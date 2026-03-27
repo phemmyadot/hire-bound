@@ -1,7 +1,7 @@
 "use client";
 
 import { COLORS } from "@/lib/constants";
-import { Btn } from "./Btn";
+import { Btn } from "@/components/atoms/Btn";
 
 interface Props {
   value: string;
@@ -11,14 +11,7 @@ interface Props {
 
 export function BulletRow({ value, onChange, onRemove }: Props) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: "6px",
-        marginBottom: "6px",
-        alignItems: "flex-start",
-      }}
-    >
+    <div style={{ display: "flex", gap: "6px", marginBottom: "6px", alignItems: "flex-start" }}>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -36,11 +29,7 @@ export function BulletRow({ value, onChange, onRemove }: Props) {
           outline: "none",
         }}
       />
-      <Btn
-        variant="danger"
-        onClick={onRemove}
-        style={{ padding: "4px 6px", fontSize: "14px", paddingTop: "4px" }}
-      >
+      <Btn variant="danger" onClick={onRemove} style={{ padding: "4px 6px", fontSize: "14px" }}>
         ✕
       </Btn>
     </div>

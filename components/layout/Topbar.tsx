@@ -3,7 +3,7 @@
 import { signOut } from "next-auth/react";
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
-import { AtsBadge, Btn } from "@/components/ui";
+import { AtsBadge, Btn } from "@/components/atoms";
 import { AppLogo } from "./AppLogo";
 
 interface Props {

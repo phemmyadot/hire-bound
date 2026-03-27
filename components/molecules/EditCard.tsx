@@ -1,7 +1,7 @@
 "use client";
 
 import { COLORS } from "@/lib/constants";
-import { Btn } from "./Btn";
+import { Btn } from "@/components/atoms/Btn";
 import type { ReactNode } from "react";
 
 interface Props {

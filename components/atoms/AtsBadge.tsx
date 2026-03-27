@@ -29,14 +29,7 @@ export function AtsBadge({ score }: Props) {
           transition: "background 0.3s",
         }}
       />
-      <span
-        style={{
-          fontSize: "11px",
-          fontWeight: "600",
-          color,
-          transition: "color 0.3s",
-        }}
-      >
+      <span style={{ fontSize: "11px", fontWeight: "600", color, transition: "color 0.3s" }}>
         ATS {score}/100
       </span>
     </div>

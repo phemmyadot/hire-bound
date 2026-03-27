@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { signOut } from "next-auth/react";
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
-import { Btn } from "@/components/ui";
+import { Btn } from "@/components/atoms";
 import { AppLogo } from "@/components/layout/AppLogo";
 
 interface Props {
