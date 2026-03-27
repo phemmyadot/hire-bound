@@ -2,7 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { COLORS } from "@/lib/constants";
+import { COLORS, NAV_TABS } from "@/lib/constants";
 import type { TabId, TemplateKey } from "@/lib/constants";
 import { computeAts } from "@/lib/ats";
 import { ResumeContext } from "@/context/ResumeContext";
@@ -11,6 +11,7 @@ import { useResumeProcessor } from "@/hooks/useResumeProcessor";
 import { useFileReader } from "@/hooks/useFileReader";
 import { useJobFinder } from "@/hooks/useJobFinder";
 import { useResumeHistory } from "@/hooks/useResumeHistory";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import type { ResumeData } from "@/lib/types";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -42,6 +43,7 @@ export default function App() {
   const [appReady, setAppReady]             = useState(false);
   const [canGoBack, setCanGoBack]           = useState(false);
   const { status } = useSession();
+  const isMobile = useIsMobile();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -66,7 +68,7 @@ export default function App() {
     if (status !== "authenticated") return;
     history.load().then((list) => {
       if (!list.length) {
-        setAppReady(true); // no resumes → show upload
+        setAppReady(true);
         return;
       }
       history.fetchOne(list[0].id).then((data) => {
@@ -79,7 +81,7 @@ export default function App() {
       });
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]); // only runs once session is authenticated
+  }, [status]);
 
   // "New" from preview toolbar → reset and go to upload
   const handleNew = useCallback(() => {
@@ -152,7 +154,7 @@ export default function App() {
         <UploadScreen onBack={canGoBack ? handleBackFromUpload : null} />
       )}
 
-      {/* Processing — no appReady gate needed, only reachable after user submits */}
+      {/* Processing */}
       {processor.step === "processing" && (
         <ProcessingScreen msg={processor.processingMsg} hasJD={!!jobDesc.trim()} />
       )}
@@ -171,8 +173,49 @@ export default function App() {
         >
           <Topbar onNew={handleNew} onDownload={handleDownload} />
 
+          {/* Mobile tab strip */}
+          {isMobile && (
+            <div
+              style={{
+                display: "flex",
+                overflowX: "auto",
+                borderBottom: `1px solid ${COLORS.border}`,
+                background: COLORS.bg,
+                flexShrink: 0,
+                scrollbarWidth: "none",
+              }}
+            >
+              {NAV_TABS.map(({ id, label }) => {
+                const active = activeTab === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    style={{
+                      flexShrink: 0,
+                      padding: "10px 16px",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: `2px solid ${active ? COLORS.blue : "transparent"}`,
+                      color: active ? COLORS.text : COLORS.textDim,
+                      fontSize: "12px",
+                      fontWeight: active ? 600 : 400,
+                      fontFamily: "inherit",
+                      cursor: "pointer",
+                      transition: "color 0.15s",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Sidebar — desktop only */}
+            {!isMobile && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />}
 
             <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
               {activeTab === "resume"      && <ResumeTab iframeRef={iframeRef} />}

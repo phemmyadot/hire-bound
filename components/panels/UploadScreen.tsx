@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { NavBar } from "@/components/layout/NavBar";
 
 interface Props {
@@ -23,6 +24,7 @@ export function UploadScreen({ onBack }: Props) {
   const { resumeText, setResumeText, fileName, isDragging, setIsDragging, readFile, pendingFile } =
     file;
   const fileRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   const canSubmit = resumeText.trim() || pendingFile;
 
@@ -108,7 +110,7 @@ export function UploadScreen({ onBack }: Props) {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
               gap: "12px",
               marginBottom: "12px",
             }}
@@ -214,7 +216,7 @@ export function UploadScreen({ onBack }: Props) {
                 placeholder="Paste the job description. Claude will tailor keywords, bullets, cover letter, and ATS score to this role."
                 style={{
                   width: "100%",
-                  height: "204px",
+                  height: isMobile ? "140px" : "204px",
                   background: COLORS.surface,
                   border: `1px solid ${COLORS.border}`,
                   borderRadius: "8px",
