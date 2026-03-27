@@ -2,7 +2,6 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { COLORS } from "@/lib/constants";
-import { TEMPLATES } from "@/lib/templates";
 import type { TabId, TemplateKey } from "@/lib/constants";
 import { computeAts } from "@/lib/ats";
 import { ResumeContext } from "@/context/ResumeContext";
@@ -98,29 +97,10 @@ export default function App() {
   const ats = { score: atsScore, color: atsColor, matched: liveMatched, missing: liveMissing };
 
   const handleDownload = () => {
-    if (!resume.editData) return;
-    const html = TEMPLATES[activeTemplate].render(resume.editData, resume.activeSkills);
-    const fullHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>${resume.editData.name || "Resume"}</title>
-  <style>@media print{@page{margin:0.5in;size:letter}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
-</head>
-<body>${html}
-<script>window.onload=function(){setTimeout(function(){window.print();},300)}<\/script>
-</body>
-</html>`;
-    const blob = new Blob([fullHtml], { type: "text/html" });
-    const url  = URL.createObjectURL(blob);
-    const win  = window.open(url, "_blank");
-    if (!win) {
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${(resume.editData.name || "resume").replace(/\s+/g, "_")}.html`;
-      a.click();
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    const cw = iframeRef.current?.contentWindow;
+    if (!cw) return;
+    cw.focus();
+    cw.print();
   };
 
   const ctx = {

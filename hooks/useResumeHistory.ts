@@ -90,5 +90,22 @@ export function useResumeHistory() {
     }
   }, [token]);
 
-  return { resumes, loading, error, load, save, update, remove, fetchOne };
+  const rename = useCallback(async (id: number, name: string): Promise<boolean> => {
+    if (!token) return false;
+    const trimmed = name.trim() || "Untitled Resume";
+    try {
+      const res = await apiFetch(`/resumes/${id}`, token, {
+        method: "PATCH",
+        body: JSON.stringify({ name: trimmed }),
+      });
+      if (!res.ok) return false;
+      const updated: ResumeListItem = await res.json();
+      setResumes((prev) => prev.map((r) => (r.id === id ? updated : r)));
+      return true;
+    } catch {
+      return false;
+    }
+  }, [token]);
+
+  return { resumes, loading, error, load, save, update, remove, fetchOne, rename };
 }

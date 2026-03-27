@@ -5,7 +5,7 @@ import { COLORS } from "@/lib/constants";
 import { useResume } from "@/context/ResumeContext";
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
+  return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -16,9 +16,11 @@ function fmtDate(iso: string) {
 
 export function HistoryTab() {
   const { history, resume } = useResume();
-  const { resumes, loading, error, load, fetchOne, remove } = history;
-  const [loadingId, setLoadingId] = useState<number | null>(null);
+  const { resumes, loading, error, load, fetchOne, remove, rename } = history;
+  const [loadingId, setLoadingId]   = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [renamingId, setRenamingId] = useState<number | null>(null);
+  const [renameVal, setRenameVal]   = useState("");
 
   useEffect(() => {
     load();
@@ -35,6 +37,21 @@ export function HistoryTab() {
     setDeletingId(id);
     await remove(id);
     setDeletingId(null);
+  }
+
+  function startRename(id: number, currentName: string) {
+    setRenamingId(id);
+    setRenameVal(currentName);
+  }
+
+  async function commitRename(id: number) {
+    await rename(id, renameVal);
+    setRenamingId(null);
+  }
+
+  function handleRenameKey(e: React.KeyboardEvent, id: number) {
+    if (e.key === "Enter") commitRename(id);
+    if (e.key === "Escape") setRenamingId(null);
   }
 
   return (
@@ -93,10 +110,44 @@ export function HistoryTab() {
                 gap: 12,
               }}
             >
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {r.name}
-                </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                {renamingId === r.id ? (
+                  <input
+                    autoFocus
+                    value={renameVal}
+                    onChange={(e) => setRenameVal(e.target.value)}
+                    onBlur={() => commitRename(r.id)}
+                    onKeyDown={(e) => handleRenameKey(e, r.id)}
+                    style={{
+                      width: "100%",
+                      background: COLORS.bg,
+                      border: `1px solid ${COLORS.blue}`,
+                      borderRadius: 4,
+                      color: COLORS.text,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      padding: "2px 6px",
+                      outline: "none",
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => startRename(r.id, r.name)}
+                    title="Click to rename"
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: COLORS.text,
+                      marginBottom: 3,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      cursor: "text",
+                    }}
+                  >
+                    {r.name}
+                  </div>
+                )}
                 <div style={{ fontSize: 11, color: COLORS.textDim }}>
                   Saved {fmtDate(r.updated_at)}
                 </div>
