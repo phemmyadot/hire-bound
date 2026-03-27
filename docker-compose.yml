@@ -26,7 +26,7 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     ports:
-      - "8000:8000"
+      - "8002:8000"
 
   frontend:
     build:
@@ -39,8 +39,11 @@ services:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
       API_URL: http://backend:8000
       AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: https://hirebound.babafemicodes.dev
+      NEXTAUTH_URL: https://hirebound.babafemicodes.dev
+      AUTH_TRUST_HOST: "true"
     ports:
-      - "3000:3000"
+      - "3002:3000"
 
 volumes:
   postgres_data:
