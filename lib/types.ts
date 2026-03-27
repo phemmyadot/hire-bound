@@ -25,6 +25,16 @@ export interface Suggestion {
   reason: string;
 }
 
+export interface SuggestedBullet {
+  text: string;
+  reason: string;
+}
+
+export interface SuggestedBulletsForRole {
+  role: string;
+  bullets: SuggestedBullet[];
+}
+
 export interface DeprioritizedSkill {
   skill: string;
   reason: string;
@@ -52,6 +62,7 @@ export interface ResumeData {
   keywordsMissing: string[];
   coverLetter: string;
   suggestions: Suggestion[];
+  suggestedBullets?: SuggestedBulletsForRole[];
 }
 
 export interface Job {

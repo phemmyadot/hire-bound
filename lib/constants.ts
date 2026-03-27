@@ -32,6 +32,7 @@ export const NAV_TABS = [
   { id: "cover",       icon: "✉️", label: "Cover Letter" },
   { id: "suggestions", icon: "💡", label: "Suggestions" },
   { id: "jobs",        icon: "🔍", label: "Job Finder" },
+  { id: "history",     icon: "🗂️", label: "History" },
   { id: "settings",   icon: "⚙️", label: "Edit Fields" },
 ] as const;
 

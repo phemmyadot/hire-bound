@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function Topbar({ onNew, onDownload }: Props) {
-  const { ats } = useResume();
+  const { ats, onSave, saving, savedId } = useResume();
   const { score, matched, missing } = ats;
 
   return (
@@ -42,6 +42,14 @@ export function Topbar({ onNew, onDownload }: Props) {
       <div style={{ display: "flex", gap: "6px" }}>
         <Btn variant="ghost" onClick={onNew} style={{ padding: "4px 12px", fontSize: "11px" }}>
           ← New
+        </Btn>
+        <Btn
+          variant="ghost"
+          onClick={onSave}
+          disabled={saving}
+          style={{ padding: "4px 12px", fontSize: "11px" }}
+        >
+          {saving ? "Saving…" : savedId ? "✓ Saved" : "Save"}
         </Btn>
         <Btn variant="primary" onClick={onDownload} style={{ padding: "4px 14px", fontSize: "11px" }}>
           ⬇ Save as PDF

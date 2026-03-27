@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { callClaude } from "@/lib/api";
-import { RESUME_SYSTEM_PROMPT } from "@/lib/prompts";
 import type { ResumeData } from "@/lib/types";
 
 const PROCESSING_MESSAGES = [
@@ -22,6 +22,7 @@ interface Options {
 export type Step = "upload" | "processing" | "preview";
 
 export function useResumeProcessor({ jobDesc, initData }: Options) {
+  const { data: session } = useSession();
   const [step, setStep]               = useState<Step>("upload");
   const [processingMsg, setProcessingMsg] = useState(PROCESSING_MESSAGES[0]);
   const [error, setError]             = useState("");
@@ -49,9 +50,13 @@ export function useResumeProcessor({ jobDesc, initData }: Options) {
             ]
           : `Here is my resume:\n\n${text}${jdBlock}\n\nReturn only the JSON.`;
 
+        const token = (session as { accessToken?: string } | null)?.accessToken;
+
         const parsed = await callClaude<ResumeData>({
-          system: RESUME_SYSTEM_PROMPT(!!jobDesc.trim()),
+          promptName: "resume",
           userContent,
+          vars: { has_jd: !!jobDesc.trim() },
+          token,
         });
 
         initData(parsed);
@@ -63,7 +68,7 @@ export function useResumeProcessor({ jobDesc, initData }: Options) {
         clearInterval(ticker);
       }
     },
-    [jobDesc, initData]
+    [jobDesc, initData, session]
   );
 
   return { step, setStep, processingMsg, error, process };

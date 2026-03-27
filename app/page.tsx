@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { COLORS } from "@/lib/constants";
 import { TEMPLATES } from "@/lib/templates";
 import type { TabId, TemplateKey } from "@/lib/constants";
@@ -10,6 +10,8 @@ import { useResumeData } from "@/hooks/useResumeData";
 import { useResumeProcessor } from "@/hooks/useResumeProcessor";
 import { useFileReader } from "@/hooks/useFileReader";
 import { useJobFinder } from "@/hooks/useJobFinder";
+import { useResumeHistory } from "@/hooks/useResumeHistory";
+import type { ResumeData } from "@/lib/types";
 import { Topbar } from "@/components/layout/Topbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { UploadScreen } from "@/components/panels/UploadScreen";
@@ -18,6 +20,7 @@ import { ResumeTab } from "@/components/panels/ResumeTab";
 import { CoverTab } from "@/components/panels/CoverTab";
 import { SuggestionsTab } from "@/components/panels/SuggestionsTab";
 import { JobsTab } from "@/components/panels/JobsTab";
+import { HistoryTab } from "@/components/panels/HistoryTab";
 import { SettingsTab } from "@/components/panels/SettingsTab";
 
 const GLOBAL_STYLES = `
@@ -34,21 +37,49 @@ export default function App() {
   const [jobDesc, setJobDesc]               = useState("");
   const [activeTab, setActiveTab]           = useState<TabId>("resume");
   const [activeTemplate, setActiveTemplate] = useState<TemplateKey>("classic");
+  const [savedId, setSavedId]               = useState<number | null>(null);
+  const [saving, setSaving]                 = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const resume    = useResumeData();
-  const processor = useResumeProcessor({ jobDesc, initData: resume.initData });
+  const history   = useResumeHistory();
+
+  // Auto-save after processing completes
+  const initDataAndSave = useCallback(async (data: ResumeData) => {
+    if (!data) return;
+    resume.initData(data);
+    const id = await history.save(data);
+    if (id) setSavedId(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resume.initData, history.save]);
+
+  const processor = useResumeProcessor({ jobDesc, initData: initDataAndSave });
   const file      = useFileReader();
   const jobFinder = useJobFinder({ editData: resume.editData, activeSkills: resume.activeSkills, jobDesc });
 
+  // Load history list on mount
+  useEffect(() => { history.load(); }, [history.load]);
+
+  // Manual save / update
+  const onSave = useCallback(async () => {
+    if (!resume.editData) return;
+    setSaving(true);
+    if (savedId) {
+      await history.update(savedId, resume.editData);
+    } else {
+      const id = await history.save(resume.editData);
+      if (id) setSavedId(id);
+    }
+    setSaving(false);
+  }, [resume.editData, savedId, history.update, history.save]);
+
   // Derived ATS
-  const atsResult = computeAts({ resumeData: resume.resumeData, editData: resume.editData, activeSkills: resume.activeSkills });
-  const atsScore  = atsResult.score;
-  const atsColor  = atsScore >= 80 ? "#22c55e" : atsScore >= 60 ? "#fbbf24" : "#ef4444";
+  const atsResult  = computeAts({ resumeData: resume.resumeData, editData: resume.editData, activeSkills: resume.activeSkills });
+  const atsScore   = atsResult.score;
+  const atsColor   = atsScore >= 80 ? "#22c55e" : atsScore >= 60 ? "#fbbf24" : "#ef4444";
   const liveMatched = atsResult.matched.length ? atsResult.matched : (resume.resumeData?.keywordsMatched || []);
   const liveMissing = atsResult.missing.length ? atsResult.missing : (resume.resumeData?.keywordsMissing || []);
-
   const ats = { score: atsScore, color: atsColor, matched: liveMatched, missing: liveMissing };
 
   const handleReset = () => {
@@ -56,6 +87,7 @@ export default function App() {
     resume.resetData();
     file.reset();
     jobFinder.reset();
+    setSavedId(null);
     setActiveTab("resume");
   };
 
@@ -86,15 +118,19 @@ export default function App() {
   };
 
   const ctx = {
-    resume: { ...resume },
+    resume,
     processor,
     file,
     jobs: jobFinder,
+    history,
     ats,
     jobDesc,
     setJobDesc,
     activeTemplate,
     setActiveTemplate,
+    savedId,
+    onSave,
+    saving,
   };
 
   return (
@@ -128,6 +164,7 @@ export default function App() {
               {activeTab === "cover"       && <CoverTab />}
               {activeTab === "suggestions" && <SuggestionsTab />}
               {activeTab === "jobs"        && <JobsTab />}
+              {activeTab === "history"     && <HistoryTab />}
               {activeTab === "settings"    && <SettingsTab onPreview={() => setActiveTab("resume")} />}
             </div>
           </div>

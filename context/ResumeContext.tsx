@@ -8,17 +8,22 @@ import type { useResumeData } from "@/hooks/useResumeData";
 import type { useResumeProcessor } from "@/hooks/useResumeProcessor";
 import type { useFileReader } from "@/hooks/useFileReader";
 import type { useJobFinder } from "@/hooks/useJobFinder";
+import type { useResumeHistory } from "@/hooks/useResumeHistory";
 
 export interface ResumeContextValue {
   resume: ReturnType<typeof useResumeData>;
   processor: ReturnType<typeof useResumeProcessor>;
   file: ReturnType<typeof useFileReader>;
   jobs: ReturnType<typeof useJobFinder>;
+  history: ReturnType<typeof useResumeHistory>;
   ats: AtsResult & { color: string };
   jobDesc: string;
   setJobDesc: (v: string) => void;
   activeTemplate: TemplateKey;
   setActiveTemplate: (t: TemplateKey) => void;
+  savedId: number | null;
+  onSave: () => void;
+  saving: boolean;
 }
 
 export const ResumeContext = createContext<ResumeContextValue | null>(null);
