@@ -21,11 +21,11 @@ export const TEMPLATES = {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap');
           *{margin:0;padding:0;box-sizing:border-box}
-          body{font-family:'Source Sans 3',Arial,sans-serif;color:#1a1a1a;background:#fff;padding:52px 56px;font-size:13px;line-height:1.55;max-width:820px;margin:0 auto}
+          body{font-family:'Source Sans 3',Arial,sans-serif;color:#1a1a1a;background:#fff;padding:40px 44px;font-size:13px;line-height:1.5;max-width:820px;margin:0 auto}
           h1{font-family:'Source Serif 4',Georgia,serif;font-size:30px;font-weight:700;letter-spacing:-0.5px;margin-bottom:3px}
           .tagline{color:#444;font-size:13px;margin-bottom:8px}
           .contact{font-size:12px;color:#555;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #1a1a1a}
-          h2{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#1a1a1a;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid #ddd}
+          h2{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#1a1a1a;margin:14px 0 6px;padding-bottom:3px;border-bottom:1px solid #ddd}
           .entry{margin-bottom:13px}
           .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px}
           .title{font-weight:600;font-size:13.5px} .date{font-size:12px;color:#555}
@@ -68,11 +68,11 @@ export const TEMPLATES = {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Lato:wght@300;400;700&display=swap');
           *{margin:0;padding:0;box-sizing:border-box}
-          body{font-family:'Lato',Arial,sans-serif;color:#1c1c1c;background:#fff;padding:50px 58px;font-size:13px;line-height:1.6;max-width:820px;margin:0 auto}
+          body{font-family:'Lato',Arial,sans-serif;color:#1c1c1c;background:#fff;padding:40px 44px;font-size:13px;line-height:1.55;max-width:820px;margin:0 auto}
           .header{text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:3px double #1c1c1c}
           h1{font-family:'Lora',Georgia,serif;font-size:32px;font-weight:700;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
           .tagline{color:#555;font-size:12.5px;margin-bottom:6px} .contact{font-size:11.5px;color:#555}
-          h2{font-family:'Lora',Georgia,serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#1c1c1c;margin:18px 0 8px;border-bottom:1px solid #ccc;padding-bottom:4px}
+          h2{font-family:'Lora',Georgia,serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#1c1c1c;margin:14px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px}
           .entry{margin-bottom:13px} .row{display:flex;justify-content:space-between;margin-bottom:1px}
           .title{font-weight:700;font-size:13px} .date{font-size:12px;color:#555;font-style:italic}
           .sub{color:#666;font-size:12px;margin-bottom:5px}
@@ -116,7 +116,7 @@ export const TEMPLATES = {
         <style>
           @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
           *{margin:0;padding:0;box-sizing:border-box}
-          body{font-family:'IBM Plex Sans',Arial,sans-serif;color:#111;background:#fff;padding:36px 44px;font-size:12px;line-height:1.5;max-width:820px;margin:0 auto}
+          body{font-family:'IBM Plex Sans',Arial,sans-serif;color:#111;background:#fff;padding:28px 36px;font-size:12px;line-height:1.45;max-width:820px;margin:0 auto}
           h1{font-size:24px;font-weight:700;letter-spacing:-0.5px;margin-bottom:2px}
           .tagline{color:#444;font-size:12px;margin-bottom:5px}
           .contact{font-size:11px;color:#555;margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid #111}

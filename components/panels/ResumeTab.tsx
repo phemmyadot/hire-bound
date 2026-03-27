@@ -44,7 +44,7 @@ export function ResumeTab({ iframeRef }: Props) {
       </div>
       <iframe
         ref={iframeRef}
-        srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@media print{@page{margin:0.5in;size:letter}}</style></head><body>${previewHtml}</body></html>`}
+        srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@media print{@page{margin:0.5in;size:letter}body{padding:0!important;margin:0!important;max-width:none!important}}</style></head><body>${previewHtml}</body></html>`}
         style={{ flex: 1, border: "none", width: "100%" }}
         title="Resume Preview"
       />
