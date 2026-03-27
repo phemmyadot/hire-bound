@@ -7,7 +7,11 @@ import { useResume } from "@/context/ResumeContext";
 import { Btn } from "@/components/ui";
 import { AppLogo } from "@/components/layout/AppLogo";
 
-export function UploadScreen() {
+interface Props {
+  onBack: () => void;
+}
+
+export function UploadScreen({ onBack }: Props) {
   const { jobDesc, setJobDesc, file, processor } = useResume();
   const { resumeText, setResumeText, fileName, isDragging, setIsDragging, readFile, pendingFile } =
     file;
@@ -47,6 +51,22 @@ export function UploadScreen() {
           background: "#0b1220",
         }}
       >
+        <button
+          onClick={onBack}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: COLORS.textDim,
+            cursor: "pointer",
+            fontSize: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            padding: "0 8px 0 0",
+          }}
+        >
+          ← Back
+        </button>
         <AppLogo />
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}

@@ -129,7 +129,7 @@ export default function App() {
       )}
 
       {/* Upload */}
-      {view === "upload" && processor.step === "upload" && <UploadScreen />}
+      {view === "upload" && processor.step === "upload" && <UploadScreen onBack={() => setView("profile")} />}
 
       {/* Processing */}
       {processor.step === "processing" && (
